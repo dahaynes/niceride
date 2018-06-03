@@ -10,10 +10,20 @@ CREATE (trip)-[:TO]->(s2)
 LOAD CSV WITH HEADERS FROM "file:///2010/Nice_Ride_2010_station_locations.csv" AS line
 MERGE (s:Station  {station_id: toInteger(line.Terminal)} )
 SET s.Latitude = toFloat(line.Latitude), s.Longitude =  toFloat(line.Longitude),  
-	s.geom = point({ latitude: toFloat(line.Latitude), longitude: toFloat(line.Longitude) }),
-        s.name = line.station, s.number_of_docks = toInteger(line.`Nb docks`)
+    s.geom = point({ latitude: toFloat(line.Latitude), longitude: toFloat(line.Longitude) }),
+    s.name = line.station, s.number_of_docks = toInteger(line.`Nb docks`)
 
 //This cleans up your database
 MATCH (n)
 DETACH DELETE n
 
+
+MATCH (t:Trip) WHERE id(t) = 18 RETURN t
+
+MATCH (t:Trip)
+WHERE id(t) = 18
+RETURN date({year:toInteger(split(t.start_date,"/")[2]), month:toInteger(split(t.start_date,"/")[0]), day: toInteger(split(t.start_date,"/")[1]) })
+
+MATCH (t:Trip)
+SET t.date_start = date({year:toInteger(split(t.start_date,"/")[2]), month:toInteger(split(t.start_date,"/")[0]), day: toInteger(split(t.start_date,"/")[1]) }),
+t.date_end = date({year:toInteger(split(t.stop_date,"/")[2]), month:toInteger(split(t.stop_date,"/")[0]), day: toInteger(split(t.stop_date,"/")[1]) })
